@@ -1,3 +1,5 @@
+
+/* create a temporary table with daily revenue */
 with daily_revenue as (
   select
     date(created_at) as dt,
@@ -6,6 +8,7 @@ with daily_revenue as (
   where refunded_at is null
   group by 1
 ),
+/* create a temporary table with daily players based on distinct user_ids */
 daily_players as (
   select
   date(created_at) as dt,
@@ -13,6 +16,7 @@ daily_players as (
   from gameplays
   group by 1
 )
+/*calculate ARPU based on the two temporary tables */
 select
   daily_revenue.dt,
   daily_revenue.rev / daily_players.players
