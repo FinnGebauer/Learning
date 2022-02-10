@@ -1,3 +1,4 @@
+/* check out the tables */
 SELECT *
  FROM survey
  LIMIT 10;
@@ -17,15 +18,17 @@ LIMIT 5;
  SELECT *
  FROM purchase
  LIMIT 5;
+ 
+ 
 
 SELECT DISTINCT q.user_id,
-   h.user_id IS NOT NULL AS 'is_home_try_on',
+   h.user_id IS NOT NULL AS 'is_home_try_on', /* Select users that did something (home try on in this case) */
    h.number_of_pairs,
-   p.user_id IS NOT NULL AS 'is_purchase'
+   p.user_id IS NOT NULL AS 'is_purchase' /* Select users who finished a purchase */
 FROM quiz as 'q'
-LEFT JOIN home_try_on AS 'h'
+LEFT JOIN home_try_on AS 'h' /* left join quiz with home_try_on to see which people finished the quiz also did home try on */
 ON h.user_id = q.user_id
-LEFT JOIN purchase AS 'p'
+LEFT JOIN purchase AS 'p' /*same thing with purchasers */
 ON p.user_id = h.user_id
 LIMIT 10;
 
@@ -33,8 +36,8 @@ SELECT h.number_of_pairs,
 COUNT(*) AS 'total customers',
    SUM(h.user_id IS NOT NULL) AS 'is_home_try_on',
    SUM(p.user_id IS NOT NULL) AS 'is_purchase',
-  1.0 * SUM(h.user_id IS NOT NULL)/ COUNT(*) AS '% step 1',
-   1.0 * SUM(p.user_id IS NOT NULL) / SUM(h.user_id IS NOT NULL) AS '% step 2'
+  1.0 * SUM(h.user_id IS NOT NULL)/ COUNT(*) AS '% step 1', /* calculate the % of all customers who did home try on */
+   1.0 * SUM(p.user_id IS NOT NULL) / SUM(h.user_id IS NOT NULL) AS '% step 2' /* calculate the % of all home try ons who purchased */
 FROM quiz as 'q'
 LEFT JOIN home_try_on AS 'h'
 ON h.user_id = q.user_id
