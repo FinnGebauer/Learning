@@ -1,3 +1,4 @@
+/* self joining a table to calculate 1d retention based on user_ids */
 select
   date(g1.created_at) as dt,
   round(100 * count(distinct g2.user_id)/
