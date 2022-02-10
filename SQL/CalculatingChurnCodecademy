@@ -1,3 +1,4 @@
+/* create a temporary table months based on start and end dates */
 WITH months AS
 (SELECT
   '2017-01-01' AS first_date,
@@ -10,12 +11,12 @@ WITH months AS
   SELECT
   '2017-03-01' AS first_date,
   '2017-03-31' AS last_date),
-
+  
 cross_join AS 
   (SELECT *
   FROM subscriptions
   CROSS JOIN months),
-
+/* define status based on subscription start and end */
 status AS
 (SELECT id, first_date AS month,
 CASE
@@ -48,6 +49,7 @@ CASE
     END AS is_canceled_30
   FROM cross_join
 ),
+/*aggregate the status and calculate churn based on it */
 status_aggregate AS 
 (
   SELECT month, sum(is_active_87) AS sum_active_87, sum(is_active_30) AS sum_active_30, sum(is_canceled_87) AS sum_canceled_87, sum(is_canceled_30) AS sum_canceled_30
