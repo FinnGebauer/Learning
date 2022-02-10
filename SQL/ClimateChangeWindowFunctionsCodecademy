@@ -2,7 +2,8 @@ SELECT *
 FROM state_climate
 LIMIT 5;
 
-/* SELECT
+/* Calculate running average with a window function */
+SELECT
   state,
   year,
   tempc,
@@ -11,10 +12,11 @@ LIMIT 5;
     ORDER BY year
   ) running_avg_temp
 FROM
-  state_climate; */
+  state_climate; 
 
 
- /*  SELECT
+ /*  finding out the lowest temperature by state */
+ SELECT
   state,
   year,
   tempc,
@@ -23,9 +25,11 @@ FROM
     ORDER BY tempc
   ) lowest_temp
 FROM
-  state_climate; */
+  state_climate;
 
-/* SELECT
+/* finding out the highest temperature by state */
+
+SELECT
   state,
   year,
   tempc,
@@ -35,9 +39,10 @@ FROM
     RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
   ) highest_temp
 FROM
-  state_climate; */
+  state_climate;
 
-/* SELECT
+/* calculating the change in temperature by state */
+SELECT
   state,
   year,
   tempc,
@@ -48,9 +53,10 @@ FROM
 FROM
   state_climate
 ORDER BY 
-  change_in_temp DESC; */
+  change_in_temp DESC; 
 
-/* SELECT
+/* Rank the coldest temperatures */
+SELECT
   state,
   year,
   tempc,
@@ -58,9 +64,10 @@ ORDER BY
     ORDER BY tempc
   ) AS coldest_rank
 FROM
-  state_climate; */
+  state_climate;
 
-/* SELECT
+/* Rank the warmest temperatures */
+SELECT
   state,
   year,
   tempc,
@@ -69,9 +76,10 @@ FROM
     ORDER BY tempc DESC
   ) AS warmest_rank
 FROM
-  state_climate; */
+  state_climate; 
 
-/* SELECT
+/* create quartiles using the ntile function */
+SELECT
   state,
   year,
   tempc,
@@ -80,8 +88,9 @@ FROM
     ORDER BY tempc ASC
   ) AS temp_quartiles
 FROM
-  state_climate; */
+  state_climate;
 
+/*create quintiles using the ntile function */
 SELECT
   state,
   year,
