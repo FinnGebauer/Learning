@@ -1,2 +1,2 @@
-# Codecademy
-Files created by me for the Data Analysis in SQL course on Codecademy
+# Learning
+Files and projects created by me as part of my learning endeavours
