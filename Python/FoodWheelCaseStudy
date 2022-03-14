@@ -1,0 +1,76 @@
+#FoodWheel is a startup delivery service that takes away the struggle of deciding where to eat! FoodWheel picks you an amazing local restaurant and lets you order through the app. Senior leadership is getting ready for a big board meeting, and as the resident Data Analyst, you have been enlisted to help decipher data and create a presentation to answer several key questions:
+
+#What cuisines does FoodWheel offer? Which areas should the company search for more restaurants to partner with?
+
+#How has the average order amount changed over time? What does this say about the trajectory of the company?
+
+#How much has each customer on FoodWheel spent over the past six months? What can this tell us about the average FoodWheel customer?
+
+import pandas as pd
+from matplotlib import pyplot as plt
+
+restaurants = pd.read_csv('restaurants.csv')
+
+print(restaurants.head())
+
+#How many different types of cuisine does FoodWheel offer?
+cuisine_options_count = restaurants.cuisine.nunique()
+print(cuisine_options_count)
+
+#How many restaurants of each cuisine?
+cuisine_counts = restaurants.groupby('cuisine').name.count().reset_index()
+
+# creating a pie chart for the different cuisines
+cuisines = cuisine_counts.cuisine.values
+counts = cuisine_counts.name.values
+
+plt.pie(counts, labels = cuisines, autopct='%d%%')
+plt.axis('equal')
+plt.title('Shares of different cuisines')
+plt.show()
+
+
+#FoodWheel is a relatively new startup. They launched in April, and have grown more popular since then. Management suspects that the average order size has increased over time. They’d like you to investigate if this claim is true and answer these questions:
+
+#How has the average order amount changed over time?
+
+#What does this say about the trajectory of the company?
+
+orders = pd.read_csv('orders.csv')
+print(orders.head())
+
+#create a new column for months only
+orders['month'] = orders.date.apply(lambda x: x.split('-')[0])
+
+# calculate the average order size per month
+avg_order = orders.groupby('month').price.mean().reset_index()
+print(avg_order)
+
+#calculate standard deviation for average price in preparation for error bars in bar chart
+std_order = orders.groupby('month').price.std().reset_index()
+
+#create bar chart
+ax = plt.subplot()
+bar_heights = avg_order.price
+bar_errors = std_order.price
+
+plt.bar(range(len(bar_heights)),bar_heights, yerr=bar_errors, capsize=5)
+ax.set_xticks(range(len(bar_heights)))
+ax.set_xticklabels(['April', 'May', 'June', 'July', 'August', 'September'])
+plt.xlabel('Months')
+plt.ylabel('Average order')
+plt.title('Average order size per month')
+plt.show()
+
+#How much has each customer on FoodWheel spent over the past six months? What can this tell us about the average FoodWheel customer?
+
+#find out, how much is spent per customer
+customer_amount = orders.groupby('customer_id').price.sum().reset_index()
+print(customer_amount.head())
+
+#create a histogram
+plt.hist(customer_amount.price.values, range=(0,200), bins=40)
+plt.xlabel('Total spent')
+plt.ylabel('Number of customers')
+plt.title('Customer expenditure per month')
+plt.show()
