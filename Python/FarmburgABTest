@@ -1,60 +1,64 @@
-#Brian is a Product Manager at FarmBurg, a company that makes a farming simulation social network game. In the FarmBurg game, you can plow, plant, and harvest different crops.
-
-#Today, you will be acting as Brian’s data analyst for an A/B Test that he has been conducting.
-
-#Brian tells you that he ran an A/B test with three different groups: A, B, and C. You’re kind of busy today, so you don’t ask too many questions about the differences between A, B, and C. Maybe they were shown three different versions of an ad. Who cares?
+# Import libraries
+import codecademylib3
 import pandas as pd
+import numpy as np
+
+# Read in the `clicks.csv` file as `abdata`
+abdata = pd.read_csv('clicks.csv')
+
+print(abdata.head())
+
+#create crosstab in preparation for chi2 test that will check whether visitors are more likely to make a purchase if they are in any one group compared to the others
+Xtab = pd.crosstab(abdata.group, abdata.is_purchase)
+print(Xtab)
+
 from scipy.stats import chi2_contingency
+chi2, pval, dof, expected = chi2_contingency(Xtab)
+print(pval)
+#this seems to be significant! However, the test checked different purchase values aginst each other and so it was the wrong test. Obviously people are more inclined to purchase at a lower price! We actually need to check which change/price point is most likely to cover its cost.
+
+num_visits = len(abdata)
+print(num_visits)
+
+#The target is $1000 extra per week to justify the cost of developmens.We'll caclulate how many people need to make a purchase to get there.
+
+num_sales_needed_099 = 1000/0.99
+num_sales_needed_199 = 1000/1.99
+num_sales_needed_499 = 1000/4.99
+
+print(num_sales_needed_099)
+print(num_sales_needed_199)
+print(num_sales_needed_499)
+
+p_sales_needed_099 = num_sales_needed_099/num_visits
+p_sales_needed_199 = num_sales_needed_199/num_visits
+p_sales_needed_499 = num_sales_needed_499/num_visits
+
+print(p_sales_needed_099)
+print(p_sales_needed_199)
+print(p_sales_needed_499)
+
+# since we have a single sample of categorical data and want to compare it to a hypothetical population value, a binomial test is appropriate. Let's prepare it!
+
+samp_size_099 = np.sum(abdata.group == 'A')
+sales_099 = np.sum((abdata.group == 'A') & (abdata.is_purchase == 'Yes'))
+
+samp_size_199 = np.sum(abdata.group == 'B')
+sales_199 = np.sum((abdata.group == 'B') & (abdata.is_purchase == 'Yes'))
+
+samp_size_499 = np.sum(abdata.group == 'C')
+sales_499 = np.sum((abdata.group == 'C') & (abdata.is_purchase == 'Yes'))
+
 from scipy.stats import binom_test
 
-df = pd.read_csv('clicks.csv')
-print(df.head())
+pvalueA = binom_test(sales_099, samp_size_099, p_sales_needed_099, alternative='greater')
 
-#define a new column checking for purchase status
-df['is_purchase'] = df.click_day.apply(lambda x: 'Purchase' if pd.notnull(x) else 'No Purchase')
+pvalueB = binom_test(sales_199, samp_size_199, p_sales_needed_199, alternative='greater')
 
-#count the number of users who made a purchase from each group
-purchase_counts = df.groupby(['group', 'is_purchase']).user_id.count().reset_index()
-print(purchase_counts)
+pvalueC = binom_test(sales_499, samp_size_499, p_sales_needed_499, alternative='greater')
 
-#fill out contingency table in preparation for chi square test
-contingency = [[316, 1350],
-               [183, 1483],
-               [83, 1583]]
+print(pvalueA)
+print(pvalueB)
+print(pvalueC)
 
-#perform chi square test, save only pvalue
-_, pvalue, _, _ = chi2_contingency(contingency)
-print(pvalue)
-
-is_significant = True
-
-#Calculating Necessary Purchase Rates
-#The AB Test has actually been conducted with different price points, so we ran the wrong test, it has to be a binomial test on each group
-#number of visits
-num_visits = len(df)
-
-#calculate number of visits needed for certain price points to reach 1000$ target
-p_clicks_099 = (1000/0.99) / num_visits
-p_clicks_199 = (1000/1.99) / num_visits
-p_clicks_499 = (1000/4.99) / num_visits
-
-#Binomial test for Group A
-x = 316
-n = 1350+316
-p = p_clicks_099
-pvalueA = binom_test(x, n, p)
-
-#Binomial test for Group B
-x = 183
-n = 1483+183
-p = p_clicks_199
-pvalueB = binom_test(x, n, p)
-
-#Binomial test for Group C
-x = 83
-n = 1583+83
-p = p_clicks_499
-pvalueC = binom_test(x, n, p)
-
-print(pvalueA, pvalueB, pvalueC)
-final_answer = 4.99
+#pvalueC is the only pvalue below the significance threshold. We should therefore charge $4.99 to get to the target of $1000 per week
