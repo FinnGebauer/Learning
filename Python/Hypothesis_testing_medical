@@ -1,0 +1,39 @@
+# Import libraries
+import pandas as pd
+import numpy as np
+
+# Load datasets
+lifespans = pd.read_csv('familiar_lifespan.csv')
+iron = pd.read_csv('familiar_iron.csv')
+
+#print first rows
+print(lifespans.head())
+
+#extract vein pack lifespans and print mean
+vein_pack_lifespans = lifespans.lifespan[lifespans.pack == 'vein']
+print(np.mean(vein_pack_lifespans))
+
+#import ttest_1samp to test vein lifespans against hypothetical population mean of 73 years
+from scipy.stats import ttest_1samp
+tstat, pval = ttest_1samp(vein_pack_lifespans,73)
+print(pval)
+
+#extract artery pack lifespans and print mean
+artery_pack_lifespans = lifespans.lifespan[lifespans.pack == 'artery']
+print(np.mean(artery_pack_lifespans))
+
+#test whether packs lifespans are significantly different with 2 sample t-test
+from scipy.stats import ttest_ind
+
+tstat, pval = ttest_ind(artery_pack_lifespans, vein_pack_lifespans)
+print(pval)
+
+#check first rows of iron dataset
+print(iron.head())
+
+#check whether there's an association between pack choice and iron level
+from scipy.stats import chi2_contingency
+Xtab = pd.crosstab(iron.pack, iron.iron)
+print(Xtab)
+chi2, pval, dof, expected = chi2_contingency(Xtab)
+print(pval)
